@@ -11,3 +11,6 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+app:
+  services:
+    resource: http://localhost:9000

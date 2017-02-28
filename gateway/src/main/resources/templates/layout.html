@@ -8,21 +8,24 @@
 <meta name="viewport" content="width=device-width" />
 <base href="/" />
 <link rel="stylesheet" type="text/css"
-	href="/webjars/bootstrap/css/bootstrap.min.css" />
+  href="/webjars/bootstrap/css/bootstrap.min.css" />
 <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
 <script type="text/javascript"
-	src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+  src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
-	<div class="container">
-		<ul class="nav nav-pills" role="tablist">
-			{{#menus}}<li class="{{#active}}active{{/active}}"><a href="{{path}}">{{name}}</a></li>{{/menus}}
-			<li><a href="#" onclick="$('#logout').submit()">Logout</a></li>
-		</ul>
-	</div>
-	{{{layout.body}}}
-	<form id="logout" action="/logout" method="post">
-		<input type="hidden" name="_csrf" value="{{_csrf.token}}" />
-	</form>
+  <div class="container">
+    <ul class="nav nav-pills" role="tablist">
+      {{#menus}}
+      <li class="{{#active}}active{{/active}}"><a href="{{path}}">{{name}}</a></li>{{/menus}}
+      <li><a href="#" onclick="$('#logout').submit()">Logout</a></li>
+    </ul>
+  </div>
+  {{{layout.body}}}
+  <form id="logout" action="/logout" method="post">
+    <input type="hidden" name="_csrf" value="{{_csrf.token}}" />
+  </form>
+  <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
+  {{{layout.script}}}
 </body>
 </html>

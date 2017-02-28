@@ -1,10 +1,15 @@
 package com.example;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,13 +23,18 @@ import com.samskivert.mustache.Mustache.TemplateLoader;
 import com.samskivert.mustache.Template.Fragment;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.mustache.MustacheProperties;
 import org.springframework.boot.autoconfigure.mustache.MustacheResourceTemplateLoader;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -41,6 +51,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class GatewayApplication extends WebSecurityConfigurerAdapter {
@@ -163,9 +175,11 @@ class Layout implements Mustache.Lambda {
 
     String title = "Demo Application";
 
-    String body;
+    StringBuilder body = new StringBuilder();
 
     String script = "";
+
+    int depth;
 
     private Compiler compiler;
 
@@ -175,8 +189,12 @@ class Layout implements Mustache.Lambda {
 
     @Override
     public void execute(Fragment frag, Writer out) throws IOException {
-        body = frag.execute();
-        compiler.compile("{{>layout}}").execute(frag.context(), out);
+        depth++;
+        body.append(frag.execute());
+        depth--;
+        if (depth == 0) {
+            compiler.compile("{{>layout}}").execute(frag.context(), out);
+        }
     }
 
 }
@@ -187,6 +205,28 @@ class HomeController {
     @GetMapping
     public String home() {
         return "index";
+    }
+}
+
+@RestController
+@RequestMapping("/resource")
+class ResourceController {
+    private RestTemplate template;
+
+    @Value("${app.services.resource}")
+    private URI resourceUrl;
+
+    ResourceController(RestTemplateBuilder builder) {
+        template = builder.build();
+    }
+
+    @GetMapping
+    public Map<String, String> resource() throws Exception {
+        return template.exchange(
+                RequestEntity.get(new URI(resourceUrl.toString() + "/resource"))
+                        .accept(MediaType.APPLICATION_JSON).build(),
+                new ParameterizedTypeReference<Map<String, String>>() {
+                }).getBody();
     }
 }
 
@@ -213,12 +253,19 @@ class LoginController {
 }
 
 @Configuration
+@ConfigurationProperties("app")
 class MustacheConfguration {
 
     private final MustacheProperties mustache;
 
+    private Map<String,URI> services = new LinkedHashMap<>();
+
     public MustacheConfguration(MustacheProperties mustache) {
         this.mustache = mustache;
+    }
+
+    public Map<String, URI> getServices() {
+        return services;
     }
 
     @Bean
@@ -226,7 +273,34 @@ class MustacheConfguration {
         MustacheResourceTemplateLoader loader = new MustacheResourceTemplateLoader(
                 this.mustache.getPrefix(), this.mustache.getSuffix());
         loader.setCharset(this.mustache.getCharsetName());
-        return new CompositeTemplateLoader(Arrays.asList(loader));
+        return new CompositeTemplateLoader(
+                Arrays.asList(new RemoteTemplateLoader(this.services), loader));
+    }
+
+}
+
+class RemoteTemplateLoader implements TemplateLoader {
+
+    private Map<String,URI> urls;
+
+    public RemoteTemplateLoader(Map<String,URI> urls) {
+        this.urls = urls;
+    }
+
+    @Override
+    public Reader getTemplate(String name) throws Exception {
+        if (!name.contains(":")) {
+            return null;
+        }
+        String service = name.substring(0, name.indexOf(":"));
+        name = name.substring(name.indexOf(":")+1);
+        URI uri = urls.get(service);
+        if (uri==null) {
+            return null;
+        }
+        return new BufferedReader(new InputStreamReader(
+                new URL(uri.toString() + "/templates/" + name + ".html")
+                        .openStream()));
     }
 
 }
