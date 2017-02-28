@@ -9,14 +9,16 @@
 	</parent>
 
 	<groupId>com.example</groupId>
-	<artifactId>mustache-templates-parent</artifactId>
+	<artifactId>templates-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Mustache Parent Demo</name>
+	<name>Demo Parent</name>
 
 	<modules>
-		<module>gateway</module>
-		<module>resource</module>
+		<module>mustache-resource</module>
+		<module>mustache-gateway</module>
+		<module>thymeleaf-resource</module>
+		<module>thymeleaf-gateway</module>
 	</modules>
 
 	<properties>
