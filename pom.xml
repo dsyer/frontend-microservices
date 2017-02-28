@@ -16,6 +16,7 @@
 
 	<modules>
 		<module>gateway</module>
+		<module>resource</module>
 	</modules>
 
 	<properties>

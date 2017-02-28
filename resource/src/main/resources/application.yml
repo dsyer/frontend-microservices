@@ -1,0 +1,8 @@
+server:
+  port: 9000
+spring:
+  mustache:
+    expose-request-attributes: true
+logging:
+  level:
+    org.springframework.security: DEBUG
