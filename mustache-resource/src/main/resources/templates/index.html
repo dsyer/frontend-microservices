@@ -22,16 +22,7 @@
   </div>[[={{ }}=]]
   {{!
   <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
-  }} {{#script}}
-  <script type="text/javascript">
-            angular.module("app", []).controller("home", function($http) {
-                var self = this;
-                $http.get("resource").then(function(response) {
-                    self.message = response.data;
-                });
-            });
-        </script>
-  {{/script}} {{/layout}} {{!
+  }} {{#script}}/js/app.js{{/script}} {{/layout}} {{!
 </body>
 </html>
 }}

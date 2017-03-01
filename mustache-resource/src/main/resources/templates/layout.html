@@ -21,6 +21,6 @@
   </div>
   {{{layout.body}}}
   <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
-  {{{layout.script}}}
+  {{#layout.script}}<script type="text/javascript" src="{{layout.script}}"></script>{{/layout.script}}
 </body>
 </html>

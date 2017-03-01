@@ -219,7 +219,7 @@ class ThymeleafConfiguration {
                 name = name.substring(name.indexOf(":") + 1);
                 URI uri = services.get(service);
                 UriComponents remote = UriComponentsBuilder.fromUri(uri)
-                        .replacePath("templates/" + name + ".html").build();
+                        .replacePath(name).build();
                 return super.computeTemplateResource(configuration, ownerTemplate,
                         template, remote.toUriString(), characterEncoding,
                         templateResolutionAttributes);

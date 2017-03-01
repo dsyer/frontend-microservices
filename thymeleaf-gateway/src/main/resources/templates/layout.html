@@ -28,9 +28,9 @@
     <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
   </form>
   <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
-  <span th:if="${script}"><script type="text/javascript"
-      th:replace="${script?:''}">
+  <th:block th:if="${script}"><script type="text/javascript"
+      th:include="${script?:''}">
             
-        </script></span>
+        </script></th:block>
 </body>
 </html>

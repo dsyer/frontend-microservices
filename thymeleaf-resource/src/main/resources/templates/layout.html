@@ -23,7 +23,7 @@
   </div>
   <div th:replace="${body}" />
   <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
-  <span th:if="${script}"><script type="text/javascript" th:replace="${script?:''}">
-        </script></span>
+  <th:block th:if="${script}"><script type="text/javascript" th:replace="${script?:''}">
+        </script></th:block>
 </body>
 </html>

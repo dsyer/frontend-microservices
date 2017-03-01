@@ -1,12 +1,12 @@
 package com.example;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -32,7 +32,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,6 +44,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -209,7 +209,6 @@ class HomeController {
 }
 
 @RestController
-@RequestMapping("/resource")
 class ResourceController {
     private RestTemplate template;
 
@@ -220,13 +219,16 @@ class ResourceController {
         template = builder.build();
     }
 
-    @GetMapping
-    public Map<String, String> resource() throws Exception {
-        return template.exchange(
-                RequestEntity.get(new URI(resourceUrl.toString() + "/resource"))
-                        .accept(MediaType.APPLICATION_JSON).build(),
-                new ParameterizedTypeReference<Map<String, String>>() {
-                }).getBody();
+    @GetMapping("/resource/**")
+    public byte[] resource(HttpServletRequest request) throws Exception {
+        String path = request.getRequestURI();
+        if (!"/resource".equals(path)) {
+            path = path.replace("/resource", "");
+        }
+        return template
+                .exchange(RequestEntity.get(new URI(resourceUrl.toString() + path))
+                        .accept(MediaType.APPLICATION_JSON).build(), byte[].class)
+                .getBody();
     }
 }
 
@@ -258,7 +260,7 @@ class MustacheConfguration {
 
     private final MustacheProperties mustache;
 
-    private Map<String,URI> services = new LinkedHashMap<>();
+    private Map<String, URI> services = new LinkedHashMap<>();
 
     public MustacheConfguration(MustacheProperties mustache) {
         this.mustache = mustache;
@@ -281,9 +283,9 @@ class MustacheConfguration {
 
 class RemoteTemplateLoader implements TemplateLoader {
 
-    private Map<String,URI> urls;
+    private Map<String, URI> urls;
 
-    public RemoteTemplateLoader(Map<String,URI> urls) {
+    public RemoteTemplateLoader(Map<String, URI> urls) {
         this.urls = urls;
     }
 
@@ -293,14 +295,26 @@ class RemoteTemplateLoader implements TemplateLoader {
             return null;
         }
         String service = name.substring(0, name.indexOf(":"));
-        name = name.substring(name.indexOf(":")+1);
+        name = name.substring(name.indexOf(":") + 1);
         URI uri = urls.get(service);
-        if (uri==null) {
+        if (uri == null) {
             return null;
         }
-        return new BufferedReader(new InputStreamReader(
-                new URL(uri.toString() + "/templates/" + name + ".html")
-                        .openStream()));
+        String template = StreamUtils.copyToString(
+                new URL(uri.toString() + "/" + name).openStream(),
+                Charset.forName("utf-8"));
+        if (template.contains("{{#layout}}")) {
+            template = template
+                    .substring(template.indexOf("{{#layout}}") + "{{#layout}}".length());
+        }
+        if (template.contains("{{/layout}}")) {
+            template = template.substring(0, template.indexOf("{{/layout}}"));
+        }
+        if (template.contains("{{#script}}")) {
+            template = template.replaceAll("\\{\\{\\#script\\}\\}.*\\{\\{/script\\}\\}",
+                    "");
+        }
+        return new StringReader(template);
     }
 
 }
