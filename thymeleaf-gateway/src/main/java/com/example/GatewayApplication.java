@@ -31,11 +31,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.util.ParsingPathMatcher;
 
 @SpringBootApplication
 public class GatewayApplication extends WebSecurityConfigurerAdapter {
@@ -140,7 +144,7 @@ class HomeController {
 }
 
 @RestController
-class ResourceController {
+class ResourceController extends WebMvcConfigurerAdapter {
     private RestTemplate template;
 
     @Value("${app.services.resource}")
@@ -149,12 +153,18 @@ class ResourceController {
     ResourceController(RestTemplateBuilder builder) {
         template = builder.build();
     }
+    
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setPathMatcher(new ParsingPathMatcher());
+        configurer.setUseSuffixPatternMatch(false);
+        configurer.setUseTrailingSlashMatch(false);
+    }
 
-    @GetMapping("/resource/**")
-    public byte[] resource(HttpServletRequest request) throws Exception {
-        String path = request.getRequestURI();
-        if (!"/resource".equals(path)) {
-            path = path.replace("/resource", "");
+    @GetMapping("/resource/{*path}")
+    public byte[] resource(@PathVariable String path) throws Exception {
+        if ("".equals(path)) {
+            path = "/resource";
         }
         return template
                 .exchange(RequestEntity.get(new URI(resourceUrl.toString() + path))
