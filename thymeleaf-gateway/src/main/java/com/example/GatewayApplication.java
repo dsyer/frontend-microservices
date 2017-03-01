@@ -2,7 +2,6 @@ package com.example;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,20 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.example.Application.Menu;
 
-import org.thymeleaf.IEngineConfiguration;
-import org.thymeleaf.templateresolver.ITemplateResolver;
-import org.thymeleaf.templateresolver.UrlTemplateResolver;
-import org.thymeleaf.templateresource.ITemplateResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,8 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootApplication
 public class GatewayApplication extends WebSecurityConfigurerAdapter {
@@ -151,7 +140,6 @@ class HomeController {
 }
 
 @RestController
-@RequestMapping("/resource")
 class ResourceController {
     private RestTemplate template;
 
@@ -162,13 +150,16 @@ class ResourceController {
         template = builder.build();
     }
 
-    @GetMapping
-    public Map<String, String> resource() throws Exception {
-        return template.exchange(
-                RequestEntity.get(new URI(resourceUrl.toString() + "/resource"))
-                        .accept(MediaType.APPLICATION_JSON).build(),
-                new ParameterizedTypeReference<Map<String, String>>() {
-                }).getBody();
+    @GetMapping("/resource/**")
+    public byte[] resource(HttpServletRequest request) throws Exception {
+        String path = request.getRequestURI();
+        if (!"/resource".equals(path)) {
+            path = path.replace("/resource", "");
+        }
+        return template
+                .exchange(RequestEntity.get(new URI(resourceUrl.toString() + path))
+                        .accept(MediaType.APPLICATION_JSON).build(), byte[].class)
+                .getBody();
     }
 }
 
@@ -192,39 +183,4 @@ class LoginController {
         SecurityContextHolder.getContext().setAuthentication(result);
         handler.onAuthenticationSuccess(request, response, result);
     }
-}
-
-@Configuration
-@ConfigurationProperties("app")
-class ThymeleafConfiguration {
-
-    private Map<String, URI> services = new LinkedHashMap<>();
-
-    public Map<String, URI> getServices() {
-        return services;
-    }
-
-    @Bean
-    public ITemplateResolver remoteTemplateResolver() {
-        return new UrlTemplateResolver() {
-            @Override
-            protected ITemplateResource computeTemplateResource(
-                    IEngineConfiguration configuration, String ownerTemplate,
-                    String template, String name, String characterEncoding,
-                    Map<String, Object> templateResolutionAttributes) {
-                if (!name.contains(":")) {
-                    return null;
-                }
-                String service = name.substring(0, name.indexOf(":"));
-                name = name.substring(name.indexOf(":") + 1);
-                URI uri = services.get(service);
-                UriComponents remote = UriComponentsBuilder.fromUri(uri)
-                        .replacePath(name).build();
-                return super.computeTemplateResource(configuration, ownerTemplate,
-                        template, remote.toUriString(), characterEncoding,
-                        templateResolutionAttributes);
-            }
-        };
-    }
-
 }

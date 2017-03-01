@@ -5,10 +5,8 @@
 
 <body>
 
-  <div class="container" ng-app="app" ng-controller="home as home">
-    <h1>Demo</h1>
-    <p>ID: {{home.message.id}}</p>
-    <p>Message: {{home.message.msg}}</p>
+  <div ng-app="app">
+    <div class="container" ng-include="'/templates/message.html'"></div>
   </div>
 
 </body>

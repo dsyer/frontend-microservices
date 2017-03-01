@@ -1,15 +1,9 @@
 package com.example;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
 import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,19 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 import com.example.Application.Menu;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Mustache.Compiler;
-import com.samskivert.mustache.Mustache.TemplateLoader;
 import com.samskivert.mustache.Template.Fragment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.mustache.MustacheProperties;
-import org.springframework.boot.autoconfigure.mustache.MustacheResourceTemplateLoader;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,7 +33,6 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -161,7 +149,7 @@ class LayoutAdvice {
     @ModelAttribute("script")
     public Mustache.Lambda script(@ModelAttribute Layout layout) {
         return (frag, out) -> {
-            layout.script = frag.execute();
+            layout.script.add(frag.execute());
         };
     }
 
@@ -177,7 +165,7 @@ class Layout implements Mustache.Lambda {
 
     StringBuilder body = new StringBuilder();
 
-    String script = "";
+    List<String> script = new ArrayList<>();
 
     int depth;
 
@@ -252,94 +240,4 @@ class LoginController {
         SecurityContextHolder.getContext().setAuthentication(result);
         handler.onAuthenticationSuccess(request, response, result);
     }
-}
-
-@Configuration
-@ConfigurationProperties("app")
-class MustacheConfguration {
-
-    private final MustacheProperties mustache;
-
-    private Map<String, URI> services = new LinkedHashMap<>();
-
-    public MustacheConfguration(MustacheProperties mustache) {
-        this.mustache = mustache;
-    }
-
-    public Map<String, URI> getServices() {
-        return services;
-    }
-
-    @Bean
-    public TemplateLoader mustacheTemplateLoader() {
-        MustacheResourceTemplateLoader loader = new MustacheResourceTemplateLoader(
-                this.mustache.getPrefix(), this.mustache.getSuffix());
-        loader.setCharset(this.mustache.getCharsetName());
-        return new CompositeTemplateLoader(
-                Arrays.asList(new RemoteTemplateLoader(this.services), loader));
-    }
-
-}
-
-class RemoteTemplateLoader implements TemplateLoader {
-
-    private Map<String, URI> urls;
-
-    public RemoteTemplateLoader(Map<String, URI> urls) {
-        this.urls = urls;
-    }
-
-    @Override
-    public Reader getTemplate(String name) throws Exception {
-        if (!name.contains(":")) {
-            return null;
-        }
-        String service = name.substring(0, name.indexOf(":"));
-        name = name.substring(name.indexOf(":") + 1);
-        URI uri = urls.get(service);
-        if (uri == null) {
-            return null;
-        }
-        String template = StreamUtils.copyToString(
-                new URL(uri.toString() + "/" + name).openStream(),
-                Charset.forName("utf-8"));
-        if (template.contains("{{#layout}}")) {
-            template = template
-                    .substring(template.indexOf("{{#layout}}") + "{{#layout}}".length());
-        }
-        if (template.contains("{{/layout}}")) {
-            template = template.substring(0, template.indexOf("{{/layout}}"));
-        }
-        if (template.contains("{{#script}}")) {
-            template = template.replaceAll("\\{\\{\\#script\\}\\}.*\\{\\{/script\\}\\}",
-                    "");
-        }
-        return new StringReader(template);
-    }
-
-}
-
-class CompositeTemplateLoader implements TemplateLoader {
-
-    private final List<TemplateLoader> delegates;
-
-    public CompositeTemplateLoader(List<TemplateLoader> delegates) {
-        this.delegates = delegates;
-    }
-
-    @Override
-    public Reader getTemplate(String name) throws Exception {
-        for (TemplateLoader loader : delegates) {
-            try {
-                Reader template = loader.getTemplate(name);
-                if (template != null) {
-                    return template;
-                }
-            }
-            catch (Exception e) {
-            }
-        }
-        throw new IllegalStateException("Cannot find template: " + name);
-    }
-
 }

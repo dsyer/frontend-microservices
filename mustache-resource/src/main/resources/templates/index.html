@@ -14,12 +14,10 @@
   src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-  }} {{#layout}}{{=[[ ]]=}}
-  <div class="container" ng-app="app" ng-controller="home as home">
-    <h1>Demo</h1>
-    <p>ID: {{home.message.id}}</p>
-    <p>Message: {{home.message.msg}}</p>
-  </div>[[={{ }}=]]
+  }} {{#layout}}
+  <div ng-app="app">
+    <div class="container" ng-include="'/templates/message.html'"></div>
+  </div>
   {{!
   <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
   }} {{#script}}/js/app.js{{/script}} {{/layout}} {{!

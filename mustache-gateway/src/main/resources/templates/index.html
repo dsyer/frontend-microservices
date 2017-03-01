@@ -13,10 +13,12 @@
 <script
   src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
-<body>
+<body id="body">
   }} {{#layout}}{{#menu}}home{{/menu}}
-  {{>resource:templates/index.html}}{{#script}}/resource/js/app.js{{/script}}
-  {{/layout}} {{!
+  <div ng-app="app">
+    <ng-include src="'/resource/templates/message.html'"></ng-include>
+  </div>
+  {{#script}}/resource/js/app.js{{/script}} {{/layout}} {{!
 </body>
 </html>
 }}
