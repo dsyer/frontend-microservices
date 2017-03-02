@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Gateway</name>
+    <name>Mustache Gateway</name>
     <description>Demo project for Spring Boot</description>
 
     <parent>
@@ -70,13 +70,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>mustache-resource</artifactId>
-            <classifier>stubs</classifier>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
