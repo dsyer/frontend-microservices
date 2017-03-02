@@ -25,7 +25,7 @@ public class GatewayApplicationTests {
 
     @Test
     @WithMockUser
-    public void contextLoads() throws Exception {
+    public void index() throws Exception {
         mockMvc.perform(get("/")).andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(containsString("ng-include")));
     }
