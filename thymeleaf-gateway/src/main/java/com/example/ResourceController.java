@@ -19,6 +19,7 @@ package com.example;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.resource.VersionResourceResolver;
 
 @RestController
 class ResourceController extends WebMvcConfigurerAdapter {
@@ -36,14 +38,19 @@ class ResourceController extends WebMvcConfigurerAdapter {
     @Value("${app.services.resource}")
     private URI resourceUrl;
 
-    ResourceController(RestTemplateBuilder builder) {
+    private ResourceProperties resources;
+
+    ResourceController(RestTemplateBuilder builder, ResourceProperties resources) {
+        this.resources = resources;
         template = builder.build();
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/resource/**")
-                .addResourceLocations(resourceUrl.toString());
+                .addResourceLocations(resourceUrl.toString())
+                .resourceChain(resources.getChain().isCache()).addResolver(
+                        new VersionResourceResolver().addContentVersionStrategy("/**"));
     }
 
     @GetMapping("/resource")

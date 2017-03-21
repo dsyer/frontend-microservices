@@ -16,9 +16,9 @@
 <body id="body">
   }} {{#layout}}{{#menu}}home{{/menu}}
   <div ng-app="app">
-    <ng-include src="'/resource/templates/message.html'"></ng-include>
+    <ng-include src="'{{#url}}/resource/templates/message.html{{/url}}'"></ng-include>
   </div>
-  {{#script}}/resource/js/app.js{{/script}} {{/layout}} {{!
+  {{#script}}{{#url}}/resource/js/app.js{{/url}}{{/script}} {{/layout}} {{!
 </body>
 </html>
 }}

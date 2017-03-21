@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 
 <html xmlns:th="http://www.thymeleaf.org"
-  th:replace="~{layout :: layout (body=~{::body}, menu='Home', script='/resource/js/app.js')}">
+  th:replace="~{layout :: layout (body=~{::body}, menu='Home', script=@{/resource/js/app.js})}">
 
 <body>
   <div ng-app="app">
-    <ng-include src="'/resource/templates/message.html'"></ng-include>
+    <ng-include th:src="'\'' + @{/resource/templates/message.html} + '\''"></ng-include>
   </div>
 </body>
 </html>

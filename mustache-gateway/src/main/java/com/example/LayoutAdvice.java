@@ -25,6 +25,7 @@ import com.samskivert.mustache.Mustache.Compiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 @ControllerAdvice
 class LayoutAdvice {
@@ -33,9 +34,12 @@ class LayoutAdvice {
 
     private Application application;
 
+    private ResourceUrlProvider urls;
+
     @Autowired
-    public LayoutAdvice(Compiler compiler, Application application) {
+    public LayoutAdvice(Compiler compiler, ResourceUrlProvider urls, Application application) {
         this.compiler = compiler;
+        this.urls = urls;
         this.application = application;
     }
 
@@ -53,6 +57,15 @@ class LayoutAdvice {
             Menu menu = application.getMenu(frag.execute());
             menu.setActive(true);
             layout.title = menu.getTitle();
+        };
+    }
+
+    @ModelAttribute("url")
+    public Mustache.Lambda url() {
+        return (frag, out) -> {
+            String path = frag.execute();
+            String url = urls.getForLookupPath(path);
+            out.append(url !=null ? url : path);
         };
     }
 
