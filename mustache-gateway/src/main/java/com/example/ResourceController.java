@@ -23,12 +23,10 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.util.ParsingPathMatcher;
 
 @RestController
 class ResourceController extends WebMvcConfigurerAdapter {
@@ -42,19 +40,15 @@ class ResourceController extends WebMvcConfigurerAdapter {
     }
 
     @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.setPathMatcher(new ParsingPathMatcher());
-        configurer.setUseSuffixPatternMatch(false);
-        configurer.setUseTrailingSlashMatch(false);
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resource/**")
+                .addResourceLocations(resourceUrl.toString());
     }
 
-    @GetMapping("/resource/{*path}")
-    public byte[] resource(@PathVariable String path) throws Exception {
-        if ("".equals(path)) {
-            path = "/resource";
-        }
+    @GetMapping("/resource")
+    public byte[] resource() throws Exception {
         return template
-                .exchange(RequestEntity.get(new URI(resourceUrl.toString() + path))
+                .exchange(RequestEntity.get(new URI(resourceUrl.toString() + "/resource"))
                         .accept(MediaType.APPLICATION_JSON).build(), byte[].class)
                 .getBody();
     }
