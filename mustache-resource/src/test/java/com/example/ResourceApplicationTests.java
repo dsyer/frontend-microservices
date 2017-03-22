@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,9 +41,21 @@ public class ResourceApplicationTests {
     }
 
     @Test
+    public void appHead() throws Exception {
+        mockMvc.perform(head("/js/app.js")).andExpect(status().is2xxSuccessful())
+                .andDo(document("appHead"));
+    }
+
+    @Test
     public void template() throws Exception {
         mockMvc.perform(get("/templates/message.html")).andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(containsString("{{home.message.id}}")))
                 .andDo(document("template"));
+    }
+
+    @Test
+    public void templateHead() throws Exception {
+        mockMvc.perform(head("/templates/message.html")).andExpect(status().is2xxSuccessful())
+                .andDo(document("templateHead"));
     }
 }
