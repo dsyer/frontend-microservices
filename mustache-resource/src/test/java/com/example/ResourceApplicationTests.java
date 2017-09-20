@@ -35,15 +35,15 @@ public class ResourceApplicationTests {
 
     @Test
     public void app() throws Exception {
-        mockMvc.perform(get("/js/app.js")).andExpect(status().is2xxSuccessful())
+        mockMvc.perform(get("/js/home.js")).andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(containsString("angular")))
-                .andDo(document("app"));
+                .andDo(document("home"));
     }
 
     @Test
     public void appHead() throws Exception {
-        mockMvc.perform(head("/js/app.js")).andExpect(status().is2xxSuccessful())
-                .andDo(document("appHead"));
+        mockMvc.perform(head("/js/home.js")).andExpect(status().is2xxSuccessful())
+                .andDo(document("homeHead"));
     }
 
     @Test

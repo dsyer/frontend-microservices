@@ -119,6 +119,32 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <!-- Workaround for IDE: make a copy of the stubs in the file system so they can be used by tests in the same Eclipse 
+                    workspace -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-snippets</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <classifier>stubs</classifier>
+                                    <outputDirectory>${project.build.directory}/stubs</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

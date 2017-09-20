@@ -33,17 +33,24 @@ public class ResourceEndpointTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username="dave")
     public void template() throws Exception {
         mockMvc.perform(get("/resource/templates/message.html")).andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(containsString("<div class=\"container\"")));
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username="sam")
+    public void fallback() throws Exception {
+        mockMvc.perform(get("/resource/templates/message.html")).andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("unavailable")));
+    }
+
+    @Test
+    @WithMockUser(username="dave")
     public void app() throws Exception {
-        mockMvc.perform(get("/resource/js/app.js")).andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(containsString("angular.module(\"app\"")));
+        mockMvc.perform(get("/resource/js/home.js")).andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("angular.module(\"home\"")));
     }
 
 }

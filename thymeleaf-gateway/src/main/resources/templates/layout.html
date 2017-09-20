@@ -29,8 +29,7 @@
   </form>
   <script type="text/javascript" th:src="@{/webjars/angularjs/angular.min.js}"></script>
   <th:block th:if="${script}"><script type="text/javascript"
-      th:src="${script?:''}">
-            
-        </script></th:block>
+      th:src="${script?:''}"></script><script type="text/javascript"
+      th:src="@{/js/app.js}"></script></th:block>
 </body>
 </html>
