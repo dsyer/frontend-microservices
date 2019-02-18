@@ -8,6 +8,7 @@ app.menus:
 spring:
   mustache:
     expose-request-attributes: true
+    suffix: .html
 logging:
   level:
     org.springframework.security: DEBUG

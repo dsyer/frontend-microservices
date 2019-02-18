@@ -11,6 +11,7 @@ public class GatewayApplication extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+    	
         http.authorizeRequests().antMatchers("/login", "/error", "/webjars/**").permitAll()
                 .antMatchers("/**").authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
