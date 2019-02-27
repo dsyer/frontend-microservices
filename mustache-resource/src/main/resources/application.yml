@@ -4,6 +4,11 @@ spring:
   mustache:
     expose-request-attributes: true
     suffix: .html
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
 logging:
   level:
     org.springframework.security: DEBUG

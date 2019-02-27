@@ -48,14 +48,14 @@ public class ResourceApplicationTests {
 
     @Test
     public void template() throws Exception {
-        mockMvc.perform(get("/templates/message.html")).andExpect(status().is2xxSuccessful())
+        mockMvc.perform(get("/message.html")).andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(containsString("{{home.message.id}}")))
                 .andDo(document("template"));
     }
 
     @Test
     public void templateHead() throws Exception {
-        mockMvc.perform(head("/templates/message.html")).andExpect(status().is2xxSuccessful())
+        mockMvc.perform(head("/message.html")).andExpect(status().is2xxSuccessful())
                 .andDo(document("templateHead"));
     }
 }

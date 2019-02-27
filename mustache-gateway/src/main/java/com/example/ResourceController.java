@@ -53,7 +53,7 @@ class ResourceController implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/remote/**")
+		registry.addResourceHandler("/resource/**")
 				.addResourceLocations(resourceUrl.toString())
 				.resourceChain(resources.getChain().isCache()).addResolver(
 						new VersionResourceResolver().addContentVersionStrategy("/**"));
