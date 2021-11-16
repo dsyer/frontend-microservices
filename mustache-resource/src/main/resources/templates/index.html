@@ -8,19 +8,26 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width" />
 <base href="/" />
-<link rel="stylesheet"
-  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
-<script
-  src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
+<link rel="stylesheet" type="text/css" href="/webjars/bootstrap/dist/css/bootstrap.min.css" />
+<script async src="/webjars/es-module-shims/dist/es-module-shims.js"></script>
+<script type="importmap">
+  {
+    "imports": {
+      "bootstrap": "/webjars/bootstrap/dist/js/bootstrap.min.js",
+      "@popperjs/core": "/webjars/dist/esm/popperjs__core/index.js",
+      "htmx": "/webjars/htmx.org/dist/htmx.min.js"
+    }
+  }
+</script>
+<script type="module">
+  import 'bootstrap';
+  import 'htmx';
+</script>
 <body>
   }} {{#layout}}
-  <div ng-app="home">
-    <div class="container" ng-include="'/message.html'"></div>
-  </div>
-  {{!
-  <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
-  }} {{#script}}/js/home.js{{/script}} {{/layout}} {{!
+  <div>
+    <div class="container" hx-trigger="load" hx-get="/message"></div>
+  </div>{{/layout}} {{!
 </body>
 </html>
 }}

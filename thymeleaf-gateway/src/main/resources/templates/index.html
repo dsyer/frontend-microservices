@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 
 <html xmlns:th="http://www.thymeleaf.org"
-  th:replace="~{layout :: layout (body=~{::body}, menu='Home', script=@{/resource/js/home.js})}">
+  th:replace="~{layout :: layout (body=~{::body}, menu='Home')}">
 
 <body>
-  <div ng-app="app">
-    <ng-include th:src="'\'' + @{/resource/templates/message.html} + '\''"></ng-include>
-  </div>
+  <div hx-get="/resource/message" hx-trigger="load"></div>
 </body>
 </html>

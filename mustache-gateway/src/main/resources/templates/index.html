@@ -15,11 +15,7 @@
 </head>
 <body id="body">
   }} {{#layout}}{{#menu}}home{{/menu}}
-  <div ng-app="app">
-    <ng-include src="'{{#url}}/resource/message.html{{/url}}'"></ng-include>
-  </div>
-  {{#script}}{{#url}}/resource/js/home.js{{/url}}{{/script}}
-  {{#script}}{{#url}}/js/app.js{{/url}}{{/script}}
+  <div hx-get="/resource/message" hx-trigger="load"></div>
 {{/layout}} {{!
 </body>
 </html>

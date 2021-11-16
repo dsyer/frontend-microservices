@@ -1,21 +1,12 @@
 <!DOCTYPE html>
 
 <html xmlns:th="http://www.thymeleaf.org"
-  th:replace="~{layout :: layout (body=~{::body},script=~{::script})}">
+  th:replace="~{layout :: layout (body=~{::body})}">
 
 <body>
 
-  <div ng-app="app">
-    <div class="container" ng-include="'/templates/message.html'"></div>
-  </div>
+  <div class="container" hx-get="/message" hx-trigger="load"></div>
 
 </body>
-
-<!--/*-->
-<script th: type="text/javascript"
-  src="/webjars/angularjs/angular.min.js"></script>
-<!--*/-->
-<script type="text/javascript" src="/js/home.js">
-</script>
 
 </html>

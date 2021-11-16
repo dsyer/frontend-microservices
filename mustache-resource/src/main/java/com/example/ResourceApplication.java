@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 public class ResourceApplication {
@@ -81,12 +80,13 @@ class HomeController {
     }
 }
 
-@RestController
-@RequestMapping("/resource")
+@Controller
+@RequestMapping("/message")
 class ResourceController {
     @GetMapping
-    public Greeting home() {
-        return new Greeting("Hello World!");
+    public String home(Greeting greeting) {
+        greeting.setMsg("Hello World!");
+        return "message";
     }
 }
 
