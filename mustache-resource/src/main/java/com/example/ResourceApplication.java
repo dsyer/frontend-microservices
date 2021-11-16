@@ -40,13 +40,6 @@ class LayoutAdvice {
     public Mustache.Lambda layout(Map<String, Object> model) {
         return new Layout(compiler);
     }
-
-    @ModelAttribute("script")
-    public Mustache.Lambda script(@ModelAttribute Layout layout) {
-        return (frag, out) -> {
-            layout.script = frag.execute();
-        };
-    }
 }
 
 class Layout implements Mustache.Lambda {
