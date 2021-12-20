@@ -28,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @RestController
-class ResourceController implements WebMvcConfigurer {
+class ResourceController {
 
 	private RestTemplate template;
 
